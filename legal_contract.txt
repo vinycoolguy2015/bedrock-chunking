@@ -1,0 +1,144 @@
+MASTER SERVICE AGREEMENT
+========================
+
+This Master Service Agreement ("Agreement") is entered into as of January 15, 2025 ("Effective Date") by and between:
+
+CloudTech Solutions Inc., a Delaware corporation with principal offices at 500 Technology Drive, Suite 200, San Francisco, CA 94105 ("Provider")
+
+AND
+
+Global Financial Services Corp., a New York corporation with principal offices at 200 Wall Street, New York, NY 10005 ("Client")
+
+COLLECTIVELY referred to as the "Parties" and individually as a "Party."
+
+ARTICLE 1: DEFINITIONS
+-----------------------
+
+1.1 "Authorized Users" means employees, contractors, and agents of Client who are authorized by Client to access and use the Services pursuant to this Agreement.
+
+1.2 "Confidential Information" means any information disclosed by either Party to the other Party, either directly or indirectly, in writing, orally, or by inspection of tangible objects, that is designated as "Confidential," "Proprietary," or some similar designation, or that should reasonably be understood to be confidential given the nature of the information and circumstances of disclosure. Confidential Information includes, but is not limited to:
+    (a) Trade secrets, inventions, and intellectual property;
+    (b) Business plans, financial information, and customer lists;
+    (c) Technical data, source code, and algorithms;
+    (d) Personnel information and organizational strategies.
+
+1.3 "Service Level Agreement" or "SLA" means the service level commitments set forth in Exhibit B attached hereto, including uptime guarantees, response times, and remediation procedures.
+
+1.4 "Services" means the cloud computing services, data processing capabilities, and related professional services described in Exhibit A attached hereto.
+
+1.5 "Subscription Term" means the initial period of twelve (12) months commencing on the Effective Date, and any subsequent renewal periods as described in Section 8.1.
+
+ARTICLE 2: SERVICES AND OBLIGATIONS
+-------------------------------------
+
+2.1 Service Provision. Provider shall make the Services available to Client in accordance with this Agreement, the applicable Order Forms, and the SLA. Provider shall use commercially reasonable efforts to ensure the Services are available 99.95% of the time during each calendar month, excluding scheduled maintenance windows.
+
+2.2 Maintenance Windows. Provider shall perform scheduled maintenance during the following windows:
+    (a) Standard maintenance: Sundays 2:00 AM - 6:00 AM EST
+    (b) Emergency maintenance: As needed with minimum 4 hours advance notice
+    (c) Major upgrades: With minimum 30 days advance notice
+
+2.3 Client Obligations. Client shall:
+    (a) Provide accurate and complete information as reasonably required for Provider to perform the Services;
+    (b) Ensure all Authorized Users comply with this Agreement and applicable usage policies;
+    (c) Maintain the security of account credentials and notify Provider immediately of any unauthorized access;
+    (d) Comply with all applicable laws and regulations in connection with its use of the Services.
+
+2.4 Data Processing. Provider shall process Client data solely in accordance with Client's documented instructions. Provider shall implement and maintain appropriate technical and organizational measures to protect Client data against unauthorized or unlawful processing, accidental loss, destruction, or damage.
+
+ARTICLE 3: FEES AND PAYMENT
+-----------------------------
+
+3.1 Fees. Client shall pay the fees set forth in the applicable Order Form ("Fees"). Unless otherwise specified in an Order Form:
+    (a) Fees are quoted in United States Dollars;
+    (b) Fees are exclusive of all taxes, levies, and duties;
+    (c) Payment is due within thirty (30) days of invoice date.
+
+3.2 Late Payment. If Client fails to make any payment when due, Provider may:
+    (a) Charge interest at the rate of 1.5% per month or the maximum rate permitted by law, whichever is less;
+    (b) Suspend access to the Services upon fifteen (15) days written notice;
+    (c) Terminate this Agreement pursuant to Section 8.3.
+
+3.3 Fee Increases. Provider may increase Fees upon renewal by providing sixty (60) days written notice prior to the start of the renewal term. Fee increases shall not exceed 7% per annum unless mutually agreed in writing.
+
+3.4 Disputed Invoices. Client must notify Provider in writing of any disputed charges within fifteen (15) days of receipt of the applicable invoice. Client shall pay all undisputed amounts by the due date. The Parties shall work in good faith to resolve any disputes within thirty (30) days.
+
+ARTICLE 4: INTELLECTUAL PROPERTY
+----------------------------------
+
+4.1 Provider IP. Provider retains all right, title, and interest in and to the Services, including all related intellectual property rights. No rights are granted to Client other than as expressly set forth herein.
+
+4.2 Client Data. Client retains all right, title, and interest in and to Client data. Client grants Provider a limited, non-exclusive license to use Client data solely to provide the Services.
+
+4.3 Feedback. If Client provides feedback or suggestions regarding the Services, Provider may use such feedback without restriction or obligation to Client.
+
+4.4 Restrictions. Client shall not:
+    (a) Reverse engineer, decompile, or disassemble the Services;
+    (b) Modify, adapt, or create derivative works based on the Services;
+    (c) Sublicense, sell, or transfer access to the Services to third parties;
+    (d) Use the Services to develop a competing product or service;
+    (e) Remove or alter any proprietary notices on the Services.
+
+ARTICLE 5: DATA PROTECTION AND SECURITY
+-----------------------------------------
+
+5.1 Security Measures. Provider shall maintain industry-standard security measures including:
+    (a) AES-256 encryption for data at rest;
+    (b) TLS 1.3 encryption for data in transit;
+    (c) Multi-factor authentication for administrative access;
+    (d) Regular penetration testing (minimum quarterly);
+    (e) SOC 2 Type II compliance certification;
+    (f) Annual third-party security audits.
+
+5.2 Data Residency. All Client data shall be stored and processed within the geographic regions specified in the Order Form. Provider shall not transfer Client data outside the specified regions without prior written consent from Client.
+
+5.3 Breach Notification. In the event of a data breach affecting Client data, Provider shall:
+    (a) Notify Client within seventy-two (72) hours of discovering the breach;
+    (b) Provide detailed information about the nature and scope of the breach;
+    (c) Take immediate steps to contain and remediate the breach;
+    (d) Cooperate with Client's investigation and regulatory notifications;
+    (e) Provide affected individuals with credit monitoring services for twelve (12) months at Provider's expense if personal data is compromised.
+
+5.4 Subprocessors. Provider shall maintain a current list of subprocessors and notify Client at least thirty (30) days before engaging a new subprocessor. Client may object to a new subprocessor within fourteen (14) days of notification.
+
+ARTICLE 6: WARRANTIES AND DISCLAIMERS
+---------------------------------------
+
+6.1 Provider Warranties. Provider warrants that:
+    (a) The Services will perform materially in accordance with the documentation;
+    (b) Provider has the legal right to enter into this Agreement;
+    (c) The Services will not infringe any third-party intellectual property rights;
+    (d) Provider will comply with all applicable laws in providing the Services.
+
+6.2 Disclaimer. EXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, THE SERVICES ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. PROVIDER DISCLAIMS ALL IMPLIED WARRANTIES INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+ARTICLE 7: LIMITATION OF LIABILITY
+------------------------------------
+
+7.1 Cap on Liability. EXCEPT FOR OBLIGATIONS UNDER SECTION 5 (DATA PROTECTION) AND SECTION 9 (INDEMNIFICATION), NEITHER PARTY'S AGGREGATE LIABILITY UNDER THIS AGREEMENT SHALL EXCEED THE TOTAL FEES PAID OR PAYABLE BY CLIENT IN THE TWELVE (12) MONTHS IMMEDIATELY PRECEDING THE EVENT GIVING RISE TO THE CLAIM.
+
+7.2 Exclusion of Damages. IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, DATA, OR BUSINESS OPPORTUNITIES, REGARDLESS OF THE THEORY OF LIABILITY.
+
+7.3 Exceptions. The limitations in Sections 7.1 and 7.2 shall not apply to:
+    (a) Breaches of confidentiality obligations;
+    (b) Willful misconduct or gross negligence;
+    (c) Infringement of intellectual property rights;
+    (d) Provider's obligations under Section 5.3 (Breach Notification).
+
+ARTICLE 8: TERM AND TERMINATION
+---------------------------------
+
+8.1 Term. This Agreement commences on the Effective Date and continues for the initial Subscription Term. The Agreement shall automatically renew for successive twelve (12) month periods unless either Party provides written notice of non-renewal at least sixty (60) days prior to the end of the then-current term.
+
+8.2 Termination for Convenience. Either Party may terminate this Agreement for convenience upon ninety (90) days written notice. If Client terminates for convenience, Client shall pay all Fees due through the end of the notice period.
+
+8.3 Termination for Cause. Either Party may terminate this Agreement immediately upon written notice if the other Party:
+    (a) Materially breaches this Agreement and fails to cure within thirty (30) days of notice;
+    (b) Becomes insolvent, files for bankruptcy, or ceases operations;
+    (c) Is subject to a change of control that results in a competitor of the terminating Party acquiring control.
+
+8.4 Effect of Termination. Upon termination:
+    (a) All rights and licenses granted hereunder shall terminate;
+    (b) Client shall pay all outstanding Fees;
+    (c) Provider shall return or destroy Client data within thirty (30) days;
+    (d) Sections 1, 4, 5, 6.2, 7, 9, and 10 shall survive termination.

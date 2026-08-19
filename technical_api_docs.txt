@@ -1,0 +1,160 @@
+Amazon Bedrock Knowledge Bases API Reference
+==============================================
+
+Section 1: CreateKnowledgeBase
+-------------------------------
+
+The CreateKnowledgeBase API creates a knowledge base that uses the specified data source and embedding model to index documents for retrieval augmented generation (RAG).
+
+Request Syntax:
+POST /knowledgebases HTTP/1.1
+Content-type: application/json
+
+{
+    "name": "string",
+    "description": "string",
+    "roleArn": "string",
+    "knowledgeBaseConfiguration": {
+        "type": "VECTOR",
+        "vectorKnowledgeBaseConfiguration": {
+            "embeddingModelArn": "string",
+            "embeddingModelConfiguration": {
+                "bedrockEmbeddingModelConfiguration": {
+                    "dimensions": number
+                }
+            }
+        }
+    },
+    "storageConfiguration": {
+        "type": "OPENSEARCH_SERVERLESS",
+        "opensearchServerlessConfiguration": {
+            "collectionArn": "string",
+            "vectorIndexName": "string",
+            "fieldMapping": {
+                "vectorField": "string",
+                "textField": "string",
+                "metadataField": "string"
+            }
+        }
+    }
+}
+
+Request Parameters:
+- name (Required): The name of the knowledge base. Must be between 1-100 characters.
+- description (Optional): A description of the knowledge base. Maximum 200 characters.
+- roleArn (Required): The ARN of the IAM role with permissions to invoke API operations on the knowledge base.
+- knowledgeBaseConfiguration (Required): Contains details about the embeddings model used for the knowledge base.
+- storageConfiguration (Required): Contains details about the storage configuration of the knowledge base.
+
+Response Syntax:
+HTTP/1.1 202
+Content-type: application/json
+
+{
+    "knowledgeBase": {
+        "knowledgeBaseId": "string",
+        "name": "string",
+        "knowledgeBaseArn": "string",
+        "status": "CREATING|ACTIVE|DELETING|UPDATING|FAILED",
+        "createdAt": "string",
+        "updatedAt": "string"
+    }
+}
+
+Error Codes:
+- ConflictException: A knowledge base with this name already exists.
+- ValidationException: Input validation failed. Check parameter formats.
+- ServiceQuotaExceededException: You have exceeded your service quota.
+- AccessDeniedException: You don't have permission to perform this action.
+- ThrottlingException: The request was denied due to throttling.
+- InternalServerException: An internal error occurred.
+
+Section 2: UpdateKnowledgeBase
+-------------------------------
+
+The UpdateKnowledgeBase API updates the configuration of an existing knowledge base. You can update the name, description, and role ARN.
+
+Request Syntax:
+PUT /knowledgebases/{knowledgeBaseId} HTTP/1.1
+Content-type: application/json
+
+{
+    "name": "string",
+    "description": "string",
+    "roleArn": "string",
+    "knowledgeBaseConfiguration": {
+        "type": "VECTOR",
+        "vectorKnowledgeBaseConfiguration": {
+            "embeddingModelArn": "string"
+        }
+    },
+    "storageConfiguration": {
+        "type": "OPENSEARCH_SERVERLESS",
+        "opensearchServerlessConfiguration": {
+            "collectionArn": "string",
+            "vectorIndexName": "string"
+        }
+    }
+}
+
+Important Notes:
+- You cannot change the storage type after creation.
+- Updating the embedding model triggers a full re-indexing operation.
+- The knowledge base status changes to UPDATING during the operation.
+- All existing data sources remain associated with the knowledge base.
+
+Section 3: DeleteKnowledgeBase
+-------------------------------
+
+The DeleteKnowledgeBase API deletes a knowledge base and all associated data sources. This action is irreversible.
+
+Request Syntax:
+DELETE /knowledgebases/{knowledgeBaseId} HTTP/1.1
+
+Response:
+HTTP/1.1 202
+Content-type: application/json
+
+{
+    "knowledgeBaseId": "string",
+    "status": "DELETING"
+}
+
+Warning: Deleting a knowledge base removes all indexed data. Ensure you have backups before proceeding.
+
+Section 4: ListKnowledgeBases
+------------------------------
+
+Returns a list of knowledge bases in your account, with pagination support.
+
+Request Syntax:
+GET /knowledgebases?maxResults=10&nextToken=string HTTP/1.1
+
+Query Parameters:
+- maxResults (Optional): Maximum number of results to return. Default: 10, Max: 100.
+- nextToken (Optional): Token for pagination from a previous response.
+
+Response includes summary information for each knowledge base including ID, name, status, and timestamps.
+
+Section 5: StartIngestionJob
+-----------------------------
+
+The StartIngestionJob API begins the process of ingesting documents from the specified data source into the knowledge base.
+
+Request Syntax:
+PUT /knowledgebases/{knowledgeBaseId}/datasources/{dataSourceId}/ingestionjobs HTTP/1.1
+Content-type: application/json
+
+{
+    "description": "string",
+    "clientToken": "string"
+}
+
+The ingestion job processes documents according to the chunking strategy configured in the data source. Processing time depends on document volume and complexity. Monitor job status using GetIngestionJob.
+
+Ingestion Statistics:
+- numberOfDocumentsScanned: Total documents found in the source.
+- numberOfDocumentsFailed: Documents that could not be processed.
+- numberOfNewDocumentsIndexed: New documents added to the index.
+- numberOfModifiedDocumentsIndexed: Updated documents re-indexed.
+- numberOfDocumentsDeleted: Documents removed from the index.

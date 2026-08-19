@@ -1,0 +1,238 @@
+Q3 2025 Infrastructure Performance Report
+============================================
+Prepared by: Platform Engineering Team
+Date: October 15, 2025
+Classification: Internal - Engineering
+
+EXECUTIVE SUMMARY
+------------------
+
+This quarter saw significant improvements in system reliability (+12% uptime) but regression in cold-start latencies for Lambda functions serving the recommendation engine. The migration from DynamoDB to Aurora PostgreSQL for the user-preferences service completed successfully, reducing p99 read latencies from 45ms to 12ms.
+
+Key Metrics Overview:
+
++------------------+----------+----------+--------+--------+
+| Service          | Uptime   | p50 (ms) | p99 (ms)| Errors |
++------------------+----------+----------+--------+--------+
+| API Gateway      | 99.98%   | 12       | 89     | 0.02%  |
+| Auth Service     | 99.95%   | 8        | 45     | 0.05%  |
+| Recommendation   | 99.87%   | 156      | 892    | 0.13%  |
+| User Preferences | 99.99%   | 3        | 12     | 0.01%  |
+| Payment Gateway  | 99.99%   | 23       | 67     | 0.01%  |
+| Search Index     | 99.92%   | 45       | 234    | 0.08%  |
+| Notification Svc | 99.96%   | 67       | 189    | 0.04%  |
+| CDN (CloudFront) | 99.99%   | 5        | 23     | 0.01%  |
++------------------+----------+----------+--------+--------+
+
+SECTION 1: RECOMMENDATION ENGINE ANALYSIS
+-------------------------------------------
+
+The recommendation engine experienced degraded performance due to increased model complexity. The team deployed a new collaborative filtering model (v3.2) that requires 40% more memory per inference.
+
+Root Cause Analysis:
+
+```python
+# Before: Simple matrix factorization (v2.8)
+def get_recommendations(user_id, n=10):
+    user_vector = embeddings.get(user_id)  # 128-dim
+    scores = np.dot(item_matrix, user_vector)
+    return np.argsort(scores)[-n:]
+
+# After: Hybrid model with attention (v3.2)
+def get_recommendations(user_id, n=10, context=None):
+    user_vector = embeddings.get(user_id)  # 512-dim
+    context_vector = context_encoder(context)  # 256-dim
+    combined = attention_layer(user_vector, context_vector)
+
+    # Multi-stage retrieval
+    candidates = ann_index.search(combined, k=100)
+    scores = reranker.score(combined, candidates)
+
+    # Business rule filtering
+    filtered = apply_business_rules(scores, user_id)
+    return filtered[:n]
+```
+
+Memory Allocation Changes:
+
++------------------+----------+----------+----------+
+| Component        | v2.8     | v3.2     | Change   |
++------------------+----------+----------+----------+
+| Model weights    | 2.1 GB   | 3.8 GB   | +81%     |
+| Embedding cache  | 512 MB   | 1.2 GB   | +134%    |
+| Inference buffer | 256 MB   | 512 MB   | +100%    |
+| Total per inst.  | 2.9 GB   | 5.5 GB   | +90%     |
++------------------+----------+----------+----------+
+
+Lambda Configuration Impact:
+- Previous: 3008 MB memory, ~800ms cold start
+- Current: 5120 MB memory, ~2100ms cold start
+- Provisioned concurrency increased from 50 to 100 instances
+
+SECTION 2: DATABASE MIGRATION RESULTS
+---------------------------------------
+
+The DynamoDB to Aurora PostgreSQL migration for user-preferences completed in three phases:
+
+Phase 1 - Dual Write (July 1-15):
+All writes duplicated to both DynamoDB and Aurora. Read traffic remained on DynamoDB. Zero downtime achieved. Data consistency verified hourly using checksums.
+
+Phase 2 - Shadow Read (July 15-31):
+Read traffic served from DynamoDB with shadow reads to Aurora. Latency comparison:
+
+```sql
+-- Optimized query for user preferences retrieval
+SELECT
+    p.user_id,
+    p.preference_key,
+    p.preference_value,
+    p.updated_at,
+    COALESCE(p.metadata->>'source', 'direct') as source
+FROM user_preferences p
+WHERE p.user_id = $1
+    AND p.is_active = true
+    AND p.updated_at > NOW() - INTERVAL '90 days'
+ORDER BY p.updated_at DESC;
+
+-- Index supporting the query
+CREATE INDEX CONCURRENTLY idx_prefs_user_active
+ON user_preferences (user_id, is_active, updated_at DESC)
+WHERE is_active = true;
+```
+
+Phase 3 - Cutover (August 1):
+Traffic switched to Aurora with DynamoDB as fallback. Monitoring confirmed:
+- p50 latency: 45ms -> 3ms (93% improvement)
+- p99 latency: 120ms -> 12ms (90% improvement)
+- Cost reduction: $4,200/month -> $890/month (79% savings)
+
+SECTION 3: INCIDENT REPORT - AUGUST 23 OUTAGE
+-----------------------------------------------
+
+Duration: 47 minutes (14:23 - 15:10 UTC)
+Severity: SEV-2
+Impact: Payment processing unavailable for 12% of users
+
+Timeline:
+- 14:23 UTC: CloudWatch alarm triggered for payment gateway error rate >1%
+- 14:25 UTC: On-call engineer paged, began investigation
+- 14:28 UTC: Identified root cause: expired TLS certificate on internal mTLS connection between payment-gateway and fraud-detection service
+- 14:35 UTC: Certificate rotation initiated
+- 14:42 UTC: New certificate deployed to 3/5 AZs
+- 14:55 UTC: Deployment to remaining AZs delayed due to deployment pipeline timeout
+- 15:02 UTC: Manual deployment to remaining AZs
+- 15:10 UTC: Full service restored, error rate returned to baseline
+
+Post-Incident Actions:
+1. [COMPLETED] Add certificate expiry monitoring with 30-day advance warning
+2. [COMPLETED] Implement automatic certificate rotation via ACM
+3. [IN-PROGRESS] Add deployment pipeline timeout alerting
+4. [PLANNED] Conduct chaos engineering exercise for certificate failures
+
+Financial Impact:
+- Estimated lost transactions: $142,000
+- Customer credits issued: $8,500
+- Engineering time: 12 person-hours (~$3,600)
+
+SECTION 4: CAPACITY PLANNING
+------------------------------
+
+Based on current growth trajectories and planned feature launches:
+
+Projected Resource Requirements (Q4 2025):
+
++------------------+----------+----------+----------+--------+
+| Resource         | Current  | Q4 Proj. | Q1 2026  | Notes  |
++------------------+----------+----------+----------+--------+
+| EC2 instances    | 124      | 156      | 198      | +27%   |
+| RDS storage (TB) | 2.4      | 3.1      | 4.2      | +75%   |
+| Lambda invoc/day | 45M      | 62M      | 85M      | +89%   |
+| S3 storage (TB)  | 18.5     | 24.2     | 32.1     | +74%   |
+| NAT Gateway (TB) | 4.2      | 5.8      | 7.9      | +88%   |
+| CloudFront (TB)  | 12.3     | 16.1     | 21.4     | +74%   |
++------------------+----------+----------+----------+--------+
+
+Budget Implications:
+- Current monthly spend: $287,000
+- Projected Q4 monthly: $358,000 (+25%)
+- Projected Q1 2026: $445,000 (+55% from current)
+
+Recommendations:
+1. Implement Graviton3 migration for compute-heavy workloads (est. 20% savings)
+2. Reserved Instances for stable baseline workloads
+3. Spot instances for recommendation engine batch processing
+4. S3 Intelligent-Tiering for cold data (est. 40% storage savings)
+
+APPENDIX A: SERVICE DEPENDENCY MAP
+------------------------------------
+
+```
+[Client App] --> [CloudFront] --> [API Gateway]
+                                       |
+                    +------------------+------------------+
+                    |                  |                  |
+              [Auth Svc]      [Recommendation]    [User Prefs]
+                    |                  |                  |
+              [Cognito]         [SageMaker]        [Aurora PG]
+                                      |
+                              [Feature Store]
+                                      |
+                              [S3 Training Data]
+
+[Payment Gateway] --> [Fraud Detection] --> [ML Model]
+        |                     |
+  [Stripe API]          [DynamoDB]
+        |
+  [SQS Queue] --> [Notification Svc] --> [SES/SNS]
+```
+
+APPENDIX B: TERRAFORM CONFIGURATION EXCERPT
+---------------------------------------------
+
+```hcl
+module "recommendation_lambda" {
+  source = "./modules/lambda"
+
+  function_name = "recommendation-engine-v3"
+  runtime       = "python3.11"
+  memory_size   = 5120
+  timeout       = 30
+
+  environment_variables = {
+    MODEL_VERSION     = "v3.2"
+    EMBEDDING_DIM     = "512"
+    ANN_INDEX_BUCKET  = aws_s3_bucket.ml_artifacts.id
+    CACHE_TTL_SECONDS = "300"
+  }
+
+  provisioned_concurrency = 100
+
+  vpc_config = {
+    subnet_ids         = module.vpc.private_subnet_ids
+    security_group_ids = [aws_security_group.lambda_sg.id]
+  }
+
+  tags = {
+    Team        = "platform-engineering"
+    Environment = "production"
+    CostCenter  = "eng-ml-inference"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "cold_start_alarm" {
+  alarm_name          = "recommendation-cold-start-p99"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  metric_name         = "InitDuration"
+  namespace           = "AWS/Lambda"
+  period              = 300
+  statistic           = "p99"
+  threshold           = 3000
+  alarm_description   = "Cold start p99 exceeds 3 seconds"
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+
+  dimensions = {
+    FunctionName = module.recommendation_lambda.function_name
+  }
+}
+```
